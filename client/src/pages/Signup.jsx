@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useSignupMutation } from "../slices/userApiSlice";
-import { setCredentials } from "../slices/authSlice";
+import { signup, clearMessages } from "../store/authSlice";
+import Cookies from "js-cookie";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -11,49 +11,92 @@ const Signup = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [name, setName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const dispatch = useDispatch();
+  const { error, status, message } = useSelector((state) => state.auth);
+
   const navigate = useNavigate();
-  const [signup, { isLoading }] = useSignupMutation();
-  const { userInfo } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (userInfo) {
-      navigate("/profile");
-    }
-  }, [navigate, userInfo]);
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const formData = {
+  //     email,
+  //     password,
+  //     phoneNumber,
+  //     name,
+  //     role: "user",
+  //   };
+  //   if (password !== confirmPassword) {
+  //     return toast.error("password does not match");
+  //   }
+
+  //   try {
+  //     const response = await dispatch(signup(formData));
+  //     if (response.payload.status === "succeeded") {
+  //       navigate("/profile");
+  //       toast.success(response.payload.message);
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.message);
+  //   }
+  // };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     if (password !== confirmPassword) {
+  //       return toast.error("password does not match");
+  //     }
+
+  //     const formData = {
+  //       email,
+  //       password,
+  //       phoneNumber,
+  //       name,
+  //       role: "user",
+  //     };
+  //     const result = await dispatch(signup(formData)).unwrap();
+  //     Cookies.set("token", result.token, { expires: 15 });
+  //     toast.success(message);
+  //     navigate("/profile");
+  //   } catch (error) {
+  //     toast.error(error.message);
+  //   }
+  // };
+
+
   const handleSubmit = async (e) => {
-  try {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-    } else {
-      try {
-        const res = await signup({
-          name,
-          email,
-          password,
-          phoneNumber,
-        }).unwrap();
-        dispatch(setCredentials({ ...res }));
-        navigate("/profile");
-        toast.success(res.message);
-      } catch (err) {
-        toast.error(err.data?.message); // Check if 'err.message' contains the error message
+     if (password !== confirmPassword) {
+        return toast.error("password does not match");
       }
+    const formData = {
+      email,
+      password,
+      phoneNumber,
+      name,
+      role: "admin",
+    };
+    try {
+      const result = await dispatch(signup(formData)).unwrap();
+      const cookieName =
+        result.role === "admin" ? "AdminJwtToken" : "UserJwtToken";
+      Cookies.set(cookieName, result.token, { expires: 15 }); 
+      if(result.role == "admin"){
+        navigate('/adminPanel')
+      }
+      toast.success(result.message);
+      navigate("/profile");
+    } catch (error) {
+      toast.error(error.message);
     }
-    console.log(name, email, phoneNumber, confirmPassword, password);
-  } catch (error) {
-    console.error(error);
-    toast.error(error.data?.message || "An error occurred while logging in");
-  }
-};
-
+  };
   return (
     <>
       <div className="flex flex-col items-center  px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-500 dark:border-gray-500">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-center">
               Sign up
             </h1>
             <form
@@ -74,7 +117,7 @@ const Signup = () => {
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder=""
                   required=""
                 />
@@ -92,7 +135,7 @@ const Signup = () => {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring--500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="name@company.com"
                   required=""
                 />
@@ -110,7 +153,7 @@ const Signup = () => {
                   id="phoneNumber"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder=""
                   required=""
                 />
@@ -129,7 +172,7 @@ const Signup = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   required=""
                 />
               </div>
@@ -147,7 +190,7 @@ const Signup = () => {
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   required=""
                 />
               </div>
@@ -157,7 +200,7 @@ const Signup = () => {
                     id="terms"
                     aria-describedby="terms"
                     type="checkbox"
-                    className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     required=""
                   />
                 </div>

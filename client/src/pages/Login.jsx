@@ -1,44 +1,60 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useLoginMutation } from "../slices/userApiSlice";
-import { setCredentials } from "../slices/authSlice";
 import { toast } from "react-toastify";
+import { login, clearMessages } from "../store/authSlice";
+import Cookies from "js-cookie";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { error, status, message } = useSelector((state) => state.auth);
 
-  const [login] = useLoginMutation();
-  const userInfo = useSelector((state) => state.auth.userInfo);
-  console.log(userInfo)
-  useEffect(() => {
-    if (userInfo) {
-      navigate("/profile");
-    }
-  }, [navigate, userInfo]);
+  // useEffect(() => {
+  //   if (status === "succeeded") {
+  //     navigate("/profile");
+  //     toast.success(message);
+  //   } else if (status === "failed") {
+  //     toast.error(error);
+  //   }
+
+  //   return () => {
+  //     dispatch(clearMessages());
+  //   };
+  // }, [status, message, error, navigate, dispatch]);
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   const formData = { email, password, role: "user" };
+  //   dispatch(login(formData));
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await login({ email, password }).unwrap();
-      dispatch(setCredentials(res));
-      toast.success(res.message)
+      const result = await dispatch(login({ email, password })).unwrap();
+      const cookieName =
+        result.role === "admin" ? "AdminJwtToken" : "UserJwtToken";
+      Cookies.set(cookieName, result.token, { expires: 15 }); // Save token in cookies
+      toast.success(result.message);
+      if(result.role === 'admin'){
+        console.log('inside if ')
+       return navigate("/adminPanel");
+      }
       navigate("/profile");
     } catch (error) {
-      console.error(error);
-      toast.error(error.data?.message || "An error occurred while logging in");
+      toast.error(error.message);
     }
   };
 
   return (
     <>
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-500 dark:border-gray-500">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-800 md:text-2xl text-center">
               Login
             </h1>
             <form
@@ -49,7 +65,7 @@ const Login = () => {
               <div>
                 <label
                   htmlFor="email"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  className="block mb-2 text-sm font-medium  dark:text-white"
                 >
                   Your email
                 </label>
@@ -59,7 +75,7 @@ const Login = () => {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="name@company.com"
                   required=""
                 />
@@ -78,7 +94,7 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   id="password"
                   placeholder="••••••••"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   required=""
                 />
               </div>

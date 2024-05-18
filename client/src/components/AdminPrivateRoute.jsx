@@ -1,14 +1,15 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
-import Cookies from 'js-cookie';  
+import Cookies from "js-cookie";
 
 const PrivateRoute = () => {
 
-  const user = Cookies.get("UserJwtToken");
+    const adminToken = Cookies.get("AdminJwtToken");
 
-  
-  if (!user) {
+  if (adminToken) {
+    return <Navigate to="/adminPanel" />;
+  } else {
     return <Navigate to="/login" />;
   }
 

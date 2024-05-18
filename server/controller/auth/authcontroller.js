@@ -9,7 +9,7 @@ const generateJwt = require('../../service/jwt');
 
 const signup = async (req, res, next) => {
     try {
-         console.log('signup api')
+
         const { email, password, role, phoneNumber, name } = req.body;
         const userRole = role || 'user';
         console.log(email, password)
@@ -52,7 +52,7 @@ const signup = async (req, res, next) => {
             httpOnly: true,
             maxAge: 15 * 24 * 60 * 60 * 1000,
         });
-        res.status(200).json({ status: true, message: "User created successfully", user: newUser, role });
+        res.status(200).json({ status: true, message: "User created successfully", user: newUser, role, token: accessToken, });
     } catch (error) {
         next(error)
 
@@ -62,7 +62,7 @@ const signup = async (req, res, next) => {
 
 const login = async (req, res, next) => {
     try {
-        const { email, password , role } = req.body;
+        const { email, password, role } = req.body;
         console.log(email, password)
         if (!req.body?.email) throw new Error('please provide your email')
         if (!req.body?.password) throw new Error('please provide your password')
@@ -97,6 +97,7 @@ const login = async (req, res, next) => {
             message: "Successfully logged in",
             user: userExist,
             role: userExist.role,
+            token: accessToken,
         });
     } catch (error) {
         next(error);

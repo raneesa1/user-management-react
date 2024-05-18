@@ -4,8 +4,11 @@ const AdminModel = require('.././model/user');
 
 const authenticateJwtAdmin = async (req, res, next) => {
     try {
+
+console.log(req)
         const token = req.cookies.AdminJwtToken;
         if (!token) {
+
             return res.status(401).json({ success: false, message: 'Unauthorized access' });
         }
 

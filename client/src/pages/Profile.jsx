@@ -1,32 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useUserLogoutMutation } from "../slices/userApiSlice";
-import { logout } from "../slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import { UserLogout } from "../store/authSlice";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const Profile = () => {
+  const [editToggle, setEditToggle] = useState(false);
   const dispatch = useDispatch();
-  const [userLogout] = useUserLogoutMutation();
   const navigate = useNavigate();
 
-  const userInfo = useSelector((state) => state.auth.userInfo);
+  const { user } = useSelector((state) => state.auth);
+
   const handleLogout = async () => {
     try {
-      await userLogout().unwrap();
-      dispatch(logout());
-       navigate("/login");
+      await axios.get("http://localhost:3000/api/user_logout");
+      dispatch(UserLogout());
+      toast.info("successfully logged out");
+      navigate("/login");
     } catch (error) {
-      console.error("Failed to log out: ", error);
+      console.error("Logout failed", error);
     }
   };
 
-  if (!userInfo) {
-    return <div>Loading...</div>;
+  console.log(user);
+  if (!user) {
+    return <div>loading...</div>;
   }
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="bg-white overflow-hidden rounded-lg border w-80">
-        <div className="p-2 cursor-pointer border-b flex justify-end" onClick={handleLogout}>
+        <div
+          className="p-2 cursor-pointer border-b flex justify-end uppercase text-stone-500"
+          onClick={handleLogout}
+        >
           logout
         </div>
         <div className="px-3 py-4 sm:px-6">
@@ -37,6 +44,12 @@ const Profile = () => {
               className="w-80"
             />
           </div>
+          <p
+            className="flex justify-end"
+            onClick={() => setEditToggle(editToggle(true))}
+          >
+            ✏️
+          </p>
         </div>
 
         <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
@@ -44,13 +57,13 @@ const Profile = () => {
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Full name :</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {userInfo.user.name}
+                {user.name}
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt className="text-sm font-medium text-gray-500">Email :</dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {userInfo.user.email}
+                {user.email}
               </dd>
             </div>
             <div className="py-3 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -58,7 +71,7 @@ const Profile = () => {
                 Phone number :
               </dt>
               <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                {userInfo.user.phoneNumber}
+                {user.phoneNumber}
               </dd>
             </div>
           </dl>
