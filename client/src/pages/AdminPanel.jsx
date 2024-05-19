@@ -41,6 +41,18 @@ const AdminPanel = () => {
 
     fetchUsers();
   }, []);
+  const handleLogout = async () => {
+    try {
+      await axios.get("http://localhost:3000/api/admin_logout", {
+        withCredentials: true,
+      });
+      Cookies.remove("AdminJwtToken");
+      navigate("/login");
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    }
+  };
+
   const handleEditUser = (userId) => {
     navigate(`/editUser/${userId}`);
   };
@@ -56,11 +68,14 @@ const AdminPanel = () => {
           withCredentials: true,
         }
       );
-      // Filter out the deleted user from the state
+
       setUsers(users.filter((user) => user._id !== userId));
     } catch (error) {
       console.error("Failed to delete user:", error);
     }
+  };
+  const handleAddUser = () => {
+    navigate("/addUser");
   };
   if (loading) {
     return <div>Loading...</div>;
@@ -73,6 +88,15 @@ const AdminPanel = () => {
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <h1 className="text-2xl font-bold mb-6">Admin Panel</h1>
+
+      <div className="flex justify-end mb-4">
+        <button
+          className="flex bg-black text-white px-2 py-1 rounded"
+          onClick={handleAddUser}
+        >
+          Add User
+        </button>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
@@ -93,7 +117,7 @@ const AdminPanel = () => {
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
+              <tr key={user._id} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
                   {user.name}
                 </td>
@@ -122,6 +146,12 @@ const AdminPanel = () => {
           </tbody>
         </table>
       </div>
+      <button
+        className="flex bg-red-700 text-white px-2 py-1 rounded mt-3"
+        onClick={handleLogout}
+      >
+        Logout
+      </button>
     </div>
   );
 };

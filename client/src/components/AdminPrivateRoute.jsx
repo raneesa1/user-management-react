@@ -4,16 +4,12 @@ import { Navigate, Outlet } from "react-router-dom";
 import Cookies from "js-cookie";
 
 const PrivateRoute = () => {
-
-    const adminToken = Cookies.get("AdminJwtToken");
-
+  const adminToken = Cookies.get("AdminJwtToken");
   if (adminToken) {
     return <Navigate to="/adminPanel" />;
   } else {
     return <Navigate to="/login" />;
   }
-
-  return <Outlet />;
 };
 
 export default PrivateRoute;

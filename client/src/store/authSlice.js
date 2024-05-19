@@ -29,6 +29,24 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
     }
 });
 
+export const updateProfile = createAsyncThunk('auth/updateProfile', async (userData, thunkAPI) => {
+
+    const token = Cookies.get("UserJwtToken"); // Get the token from state
+    console.log(token, 'token from update profile')
+    console.log(userData.id, 'consoling the id from the auth slice')
+    try {
+        const response = await axios.patch(`http://localhost:3000/api/user/editProfile/${userData.id}`, { data: userData }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.response.data);
+    }
+});
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -37,7 +55,6 @@ const authSlice = createSlice({
             state.user = null;
             state.token = null;
             Cookies.remove('UserJwtToken');
-
         },
         adminLogout: (state) => {
             Cookies.remove('UserJwtToken');
@@ -55,7 +72,6 @@ const authSlice = createSlice({
                 state.token = action.payload.token;
                 state.message = action.payload.message;
                 const cookieName = action.payload.role === 'admin' ? 'AdminJwtToken' : 'UserJwtToken';
-                console.log(action.payload.token, 'consling the token')
                 Cookies.set(cookieName, action.payload.token, { expires: 15 });
             })
             .addCase(signup.rejected, (state, action) => {
@@ -68,11 +84,17 @@ const authSlice = createSlice({
                 state.token = action.payload.token;
                 state.message = action.payload.message;
                 const cookieName = action.payload.role === 'admin' ? 'AdminJwtToken' : 'UserJwtToken';
-                console.log(action.payload.token, 'consling the token')
                 Cookies.set(cookieName, action.payload.token, { expires: 15 });
             })
             .addCase(login.rejected, (state, action) => {
                 state.status = 'failed';
+                state.error = action.payload.message;
+            })
+            .addCase(updateProfile.fulfilled, (state, action) => {
+                state.user = action.payload.user;
+                state.message = action.payload.message;
+            })
+            .addCase(updateProfile.rejected, (state, action) => {
                 state.error = action.payload.message;
             });
     },

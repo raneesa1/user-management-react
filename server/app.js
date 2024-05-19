@@ -21,7 +21,7 @@ app.use(cookieParser());
 
 app.use('/api/admin', adminRouter);
 app.use('/api/', authRouter);
-app.use('/api/users', userRouter)
+app.use('/api/user', userRouter)
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000;

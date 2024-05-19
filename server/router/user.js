@@ -5,7 +5,7 @@ const editProfile = require('../controller/user/editProfile')
 const authenticateUser = require('../middleware/jwtUserAuthentication')
 
 
-userRouter.patch('/editProfile', authenticateUser, editProfile)
+userRouter.patch('/editProfile/:userId', authenticateUser, editProfile)
 
 
 module.exports = userRouter;

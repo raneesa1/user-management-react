@@ -2,45 +2,53 @@ const UserModel = require('../../model/user');
 const { isValidObjectId } = require('../../util/objectIdValidator')
 
 
-const editSeller = async (req, res, next) => {
+const editUser = async (req, res, next) => {
     try {
-        console.log('edit user api')// change params to userId
-        // const { sellerId } = req.params;
-        // const { email, role } = req.body.data;
+        console.log('edit user api')
+        const { userId } = req.params;
+        const { name, role, phoneNumber } = req.body.data;
 
-        // if (!isValidObjectId(sellerId)) {
-        //     return res.status(400).json({ success: false, message: "Invalid seller ID format" });
-        // }
-
-
-        // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        // if (!emailRegex.test(email)) {
-        //     return res.status(400).json({ success: false, message: "Invalid email" });
-        // }
+        if (!isValidObjectId(userId)) {
+            return res.status(400).json({ success: false, message: "Invalid seller ID format" });
+        }
 
 
-        // const existingUser = await UserModel.findById(sellerId);
-        // if (!existingUser) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "Seller not found",
-        //     });
-        // }
-        // if (email) existingUser.email = email;
-        // if (role !== undefined) {
-        //     if (role) existingUser.role = role;
-        // }
-        // await existingUser.save();
+        const existingUser = await UserModel.findById(userId);
+        if (!existingUser) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+        if (phoneNumber) {
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phoneNumber)) {
+                return { valid: false, message: "Invalid phone number format" };
+            }
 
-        // res.status(200).json({
-        //     success: true,
-        //     message: "Seller updated successfully",
-        //     user: existingUser,
-        // });
+            if (phoneNumber) existingUser.phoneNumber = phoneNumber
+        }
+        if (name) {
+            if (name.trim().length == 0) {
+                return { valid: false, message: "Name is required" };
+            }
+        }
+        if (name) existingUser.email = name;
+        if (role) existingUser.role = role;
+        if (phoneNumber) existingUser.phoneNumber = phoneNumber
+
+
+        await existingUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "User updated successfully",
+            user: existingUser,
+        });
     } catch (error) {
         console.error('Error in editing user:', error);
         next(error);
     }
 };
 
-module.exports = editSeller;
+module.exports = editUser;

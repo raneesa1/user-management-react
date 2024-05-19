@@ -14,7 +14,7 @@ const authenticateSellerJwt = (req, res, next) => {
             }
 
             const { role } = decoded.payload;
-            if (role !== 'seller') {
+            if (role !== 'user') {
 
                 return res.status(403).json({ success: false, message: 'Unauthorized access' });
             }

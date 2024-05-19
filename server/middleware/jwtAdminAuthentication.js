@@ -4,8 +4,6 @@ const AdminModel = require('.././model/user');
 
 const authenticateJwtAdmin = async (req, res, next) => {
     try {
-
-console.log(req)
         const token = req.cookies.AdminJwtToken;
         if (!token) {
 

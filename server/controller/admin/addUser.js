@@ -20,7 +20,7 @@ const addUser = async (req, res, next) => {
         if (existingUser) {
             return res.status(400).json({
                 status: false,
-                message: "seller already exists with this email",
+                message: "user already exists with this email",
             });
         }
 
@@ -31,14 +31,14 @@ const addUser = async (req, res, next) => {
             email,
             password: hashedPassword,
             image: "https://res.cloudinary.com/dmrb0zb2v/image/upload/v1715324466/l90ly3carldhsfhx0rpi.jpg",
-            role: userRole,
+            role: role,
             phoneNumber
         });
         await newUser.save();
 
         res.status(200).json({
             status: true,
-            message: "seller created successfully",
+            message: "user created successfully",
             user: newUser,
         });
     } catch (error) {
