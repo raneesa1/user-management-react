@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState([]);
@@ -49,6 +50,7 @@ const AdminPanel = () => {
         withCredentials: true,
       });
       Cookies.remove("AdminJwtToken");
+      toast.info("Successfully logged out");
       navigate("/login");
     } catch (error) {
       console.error("Failed to logout:", error);
@@ -115,7 +117,6 @@ const AdminPanel = () => {
           Add User
         </button>
       </div>
-
 
       <input
         type="text"
