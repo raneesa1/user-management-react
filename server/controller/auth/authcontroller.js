@@ -92,12 +92,14 @@ const login = async (req, res, next) => {
             httpOnly: true,
             maxAge: 15 * 24 * 60 * 60 * 1000,
         });
+        console.log(userExist.image,'consling the image')
         res.status(200).json({
             status: true,
             message: "Successfully logged in",
             user: userExist,
             role: userExist.role,
             token: accessToken,
+            
         });
     } catch (error) {
         next(error);

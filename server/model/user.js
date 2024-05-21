@@ -30,6 +30,9 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    image:{
+        type:String
+    }
 })
 const UserModel = mongoose.model(process.env.USER_COLLECTION, UserSchema)
 module.exports = UserModel

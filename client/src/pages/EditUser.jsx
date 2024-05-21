@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 const EditUser = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
+  console.log(userId, "consoling the user if from edit user component");
   const [userDetails, setUserDetails] = useState({
     name: "",
     email: "",
@@ -17,11 +20,12 @@ const EditUser = () => {
     const fetchUserDetails = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/admin/updateUser/${userId}`,
+          `http://localhost:3000/api/admin/editUser/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${Cookies.get("AdminJwtToken")}`,
             },
+            withCredentials: true,
           }
         );
         setUserDetails(response.data.user);
@@ -41,23 +45,31 @@ const EditUser = () => {
       ...prevDetails,
       [name]: value,
     }));
+
+    console.log(
+      userDetails,
+      "conslin the user detials fro the edit fror sednin the req"
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.patch(
-        `http://localhost:3000/api/user/updateUser/${userId}`,
+        `http://localhost:3000/api/admin/updateUser/${userId}`,
         { data: userDetails },
         {
           headers: {
             Authorization: `Bearer ${Cookies.get("AdminJwtToken")}`,
           },
+          withCredentials: true,
         }
       );
+      toast.success(response.data.message);
+      navigate("/adminPanel");
       console.log(response.data.message);
     } catch (error) {
-      console.error("Error updating user details:", error);
+      toast.error(error.response.data.message);
     }
   };
 
@@ -86,8 +98,8 @@ const EditUser = () => {
                 id="name"
                 value={userDetails.name}
                 onChange={handleChange}
+                placeholder={userDetails.name}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Name"
                 required
               />
             </div>
@@ -104,8 +116,8 @@ const EditUser = () => {
                 id="email"
                 value={userDetails.email}
                 readOnly
+                placeholder={userDetails.email}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Email"
               />
             </div>
             <div>
@@ -121,8 +133,8 @@ const EditUser = () => {
                 id="phoneNumber"
                 value={userDetails.phoneNumber}
                 onChange={handleChange}
+                placeholder={userDetails.phoneNumber}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Phone Number"
                 required
               />
             </div>
@@ -137,12 +149,11 @@ const EditUser = () => {
                 name="role"
                 id="role"
                 value={userDetails.role}
-
                 onChange={handleChange}
                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-50 dark:border-gray-50 dark:placeholder-gray-400 dark:text-gray-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 required
               >
-                <option value="">Select Role</option>
+                <option value="">{userDetails.role}</option>
                 <option value="admin">Admin</option>
                 <option value="user">User</option>
               </select>

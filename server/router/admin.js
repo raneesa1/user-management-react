@@ -13,7 +13,8 @@ const adminRouter = express.Router();
 adminRouter.get('/users', authenticateJwtAdmin, getAllUser)
 adminRouter.post('/addUser', authenticateJwtAdmin, addUser)
 adminRouter.delete('/deleteUser/:userId', authenticateJwtAdmin, deleteUser)
-adminRouter.patch('/updateUser/:userId', authenticateJwtAdmin, updateUser)
+adminRouter.patch('/updateUser/:userId', authenticateJwtAdmin, updateUser.editUser)
+adminRouter.get('/editUser/:userId', authenticateJwtAdmin, updateUser.getUserInfo)
 
 
 module.exports = adminRouter;

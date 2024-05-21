@@ -7,6 +7,7 @@ const AdminPanel = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const navigate = useNavigate();
 
@@ -16,7 +17,7 @@ const AdminPanel = () => {
       console.log(token, "admin token from cookie in admin panel page");
 
       if (!token) {
-        setError("No token found");
+        setError("Unauthorized access");
         setLoading(false);
         return;
       }
@@ -41,6 +42,7 @@ const AdminPanel = () => {
 
     fetchUsers();
   }, []);
+
   const handleLogout = async () => {
     try {
       await axios.get("http://localhost:3000/api/admin_logout", {
@@ -56,7 +58,17 @@ const AdminPanel = () => {
   const handleEditUser = (userId) => {
     navigate(`/editUser/${userId}`);
   };
-  const handleDelete = async (userId) => {
+
+  const confirmDeleteUser = (userId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this user?"
+    );
+    if (confirmDelete) {
+      deleteUser(userId);
+    }
+  };
+
+  const deleteUser = async (userId) => {
     try {
       const token = Cookies.get("AdminJwtToken");
       await axios.delete(
@@ -74,9 +86,15 @@ const AdminPanel = () => {
       console.error("Failed to delete user:", error);
     }
   };
+
   const handleAddUser = () => {
     navigate("/addUser");
   };
+
+  const filteredUsers = users.filter((user) =>
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -97,6 +115,16 @@ const AdminPanel = () => {
           Add User
         </button>
       </div>
+
+
+      <input
+        type="text"
+        placeholder="Search users..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="border border-gray-300 rounded px-3 py-1 mb-4"
+      />
+
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
@@ -116,7 +144,7 @@ const AdminPanel = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b border-gray-200 text-sm text-gray-700">
                   {user.name}
@@ -136,7 +164,7 @@ const AdminPanel = () => {
                   </button>
                   <button
                     className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => confirmDeleteUser(user._id)}
                   >
                     🗑️
                   </button>

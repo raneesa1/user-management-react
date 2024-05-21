@@ -31,7 +31,7 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
 
 export const updateProfile = createAsyncThunk('auth/updateProfile', async (userData, thunkAPI) => {
 
-    const token = Cookies.get("UserJwtToken"); // Get the token from state
+    const token = Cookies.get("UserJwtToken"); 
     console.log(token, 'token from update profile')
     console.log(userData.id, 'consoling the id from the auth slice')
     try {

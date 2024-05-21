@@ -75,7 +75,7 @@ const Signup = () => {
       password,
       phoneNumber,
       name,
-      role: "admin",
+      role: 'user',
     };
     try {
       const result = await dispatch(signup(formData)).unwrap();

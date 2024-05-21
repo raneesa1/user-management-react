@@ -40,7 +40,6 @@ const Login = () => {
       Cookies.set(cookieName, result.token, { expires: 15 }); // Save token in cookies
       toast.success(result.message);
       if(result.role === 'admin'){
-        console.log('inside if ')
        return navigate("/adminPanel");
       }
       navigate("/profile");
