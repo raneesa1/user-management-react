@@ -9,7 +9,7 @@ const authenticateJwtAdmin = require('../middleware/jwtAdminAuthentication');
 
 const adminRouter = express.Router();
 
-
+    
 adminRouter.get('/users', authenticateJwtAdmin, getAllUser)
 adminRouter.post('/addUser', authenticateJwtAdmin, addUser)
 adminRouter.delete('/deleteUser/:userId', authenticateJwtAdmin, deleteUser)
